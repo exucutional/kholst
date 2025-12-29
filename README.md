@@ -1,5 +1,5 @@
-# moonbow
-3D Graphics Engine
+# kholst
+KHOLST project is a 3D graphics engine designed to bring joy from graphics programming.
 
-## Instal
+## Install
 TODO: Need to add more info about requirements to build with cmake.

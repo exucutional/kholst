@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(moonbow C CXX)
+project(kholst C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SRC_FILES
@@ -68,6 +69,9 @@ lvk_set_folder(obj_basisu_cbind "third-party/ktx-software")
 lvk_set_folder(objUtil "third-party/ktx-software")
 if(TARGET astcenc-avx2-static)
   lvk_set_folder(astcenc-avx2-static "third-party/ktx-software")
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      target_compile_options(astcenc-avx2-static PRIVATE -Wno-overriding-option)
+  endif()
 endif()
 
 if(WIN32)

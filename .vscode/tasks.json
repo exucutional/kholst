@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cmake",
+            "label": "Build KHOLST | Debug",
+            "command": "build",
+            "targets": [
+                "kholst"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake build task",
+            "dependsOn": []
+        }
+    ]
+}

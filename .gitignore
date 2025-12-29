@@ -41,7 +41,6 @@
 *.dwo
 
 *.cache
-*.vscode
 build
 .log*
 

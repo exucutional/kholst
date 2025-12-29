@@ -121,7 +121,7 @@ private:
 int main()
 {
     minilog::initialize(LOG_FILE_PATH, { .threadNames = false });
-    WindowApp app("Moonbow", WIDTH, HEIGHT);
+    WindowApp app("Kholst", WIDTH, HEIGHT);
     app.run();
     return 0;
 }
