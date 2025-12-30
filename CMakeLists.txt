@@ -5,13 +5,20 @@ project(kholst C CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/Debug/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/Release/bin")
+
 set(SRC_FILES
     "src/main.cpp"
     "src/utils.cpp"
+    "src/render/shader/compiler/compiler.cpp"
 )
 
 set(HEADER_FILES
     "src/utils.h"
+    "src/render/shader/compiler/compiler.h"
 )
 
 set(SHADER_FILES
@@ -45,6 +52,7 @@ include_directories(${LVK_SOURCE}/third-party/deps/src/taskflow)
 include_directories(${LVK_SOURCE}/third-party/deps/src/glm)
 include_directories(${LVK_SOURCE}/third-party/deps/src/imgui)
 include_directories(${LVK_SOURCE}/third-party/deps/src/glfw)
+include_directories(${LVK_SOURCE}/third-party/deps/src/slang)
 
 add_subdirectory(${LVK_SOURCE}/third-party/deps/src/ldrutils)
 set(KTX_FEATURE_DOC            OFF CACHE BOOL "")
@@ -61,12 +69,14 @@ add_subdirectory(${LVK_SOURCE}/third-party/deps/src/ktx-software)
 set(LVK_WITH_SAMPLES   OFF CACHE BOOL "")
 set(LVK_WITH_TRACY     ON  CACHE BOOL "")
 set(LVK_WITH_TRACY_GPU ON  CACHE BOOL "")
+set(LVK_WITH_SLANG     ON  CACHE BOOL "")
 add_subdirectory(${LVK_SOURCE})
 lvk_set_folder(ktx "third-party/ktx-software")
 lvk_set_folder(ktx_read "third-party/ktx-software")
 lvk_set_folder(ktx_version "third-party/ktx-software")
 lvk_set_folder(obj_basisu_cbind "third-party/ktx-software")
 lvk_set_folder(objUtil "third-party/ktx-software")
+lvk_set_folder(slang "third-party/slang")
 if(TARGET astcenc-avx2-static)
   lvk_set_folder(astcenc-avx2-static "third-party/ktx-software")
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -107,3 +117,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC LUtils)
 target_link_libraries(${PROJECT_NAME} PUBLIC LVKLibrary)
 target_link_libraries(${PROJECT_NAME} PUBLIC LVKstb)
 target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
+target_link_libraries(${PROJECT_NAME} PUBLIC slang)
+target_link_libraries(${PROJECT_NAME} PUBLIC slang-rt)

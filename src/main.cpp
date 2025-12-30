@@ -5,6 +5,7 @@
 #include <glm/ext.hpp>
 
 #include "utils.h"
+#include "render/shader/compiler/compiler.h"
 
 static constexpr uint32_t WIDTH = 1680;
 static constexpr uint32_t HEIGHT = 720;
@@ -13,8 +14,7 @@ static constexpr uint32_t CUBE_TRIANGLES = 36;
 
 static const char* LOG_FILE_PATH = ".log.last.txt"; 
 
-static const char* VERT_PATH = "src/shaders/cube.vert";
-static const char* FRAG_PATH = "src/shaders/cube.frag";
+static const char* SLANG_CUBE_PATH = "src/shaders/cube.slang";
 
 class WindowApp final
 {
@@ -23,19 +23,58 @@ public:
     : window(lvk::initWindow(name, width, height), glfwDestroyWindow)
     {
         ctx = lvk::createVulkanContextWithSwapchain(window.get(), width, height, {});
+        
+        // Initialize Slang compiler
+        if (!compiler.initialize(SLANG_SPIRV))
+        {
+            LLOGW("Failed to initialize Slang compiler: %s\n", compiler.getLastDiagnostics().c_str());
+            return;
+        }
+        
         initRender();
     }
     
     void initRender()
     {
-        vert = load_shader_module(ctx, VERT_PATH);
-        frag = load_shader_module(ctx, FRAG_PATH);
+        // Compile vertex and fragment shaders from Slang
+        std::vector<uint32_t> vertSpirv, fragSpirv;
+        std::string errorMsg;
+        
+        if (!compiler.compileVertexFragment(
+            SLANG_CUBE_PATH,
+            "cubeVertex",
+            "cubeFragment",
+            vertSpirv,
+            fragSpirv,
+            errorMsg))
+        {
+            LLOGW("Failed to compile shaders: %s\n", errorMsg.c_str());
+            LLOGW("Diagnostics: %s\n", compiler.getLastDiagnostics().c_str());
+            return;
+        }
+        
+        // Create shader modules from compiled SPIRV
+        vert = ctx->createShaderModule({
+            vertSpirv.data(),
+            vertSpirv.size() * sizeof(uint32_t),
+            lvk::Stage_Vert,
+            "Shader Module: cube.slang (vert)"
+        });
+        
+        frag = ctx->createShaderModule({
+            fragSpirv.data(),
+            fragSpirv.size() * sizeof(uint32_t),
+            lvk::Stage_Frag,
+            "Shader Module: cube.slang (frag)"
+        });
+        
         pipeline = ctx->createRenderPipeline({
             .smVert = vert,
             .smFrag = frag,
             .color  = { { .format = ctx->getSwapchainFormat() } },
             .cullMode = lvk::CullMode_Back,
         });
+        
         wireframePipeline = ctx->createRenderPipeline({
             .smVert = vert,
             .smFrag = frag,
@@ -109,6 +148,7 @@ public:
 private:
     VkBool32 isWireframe = false;
 
+    kholst::render::shader::SlangCompiler compiler;
     lvk::Holder<lvk::ShaderModuleHandle> vert;
     lvk::Holder<lvk::ShaderModuleHandle> frag;
     lvk::Holder<lvk::RenderPipelineHandle> pipeline;
